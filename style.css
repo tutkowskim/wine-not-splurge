@@ -1,0 +1,26 @@
+body {
+    background-color: #e8e8e8;
+    margin: 0;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    background-color: #706a69;
+    color: #e8e8e8;
+}
+
+.app-header > * {
+    margin: 8px;
+}
+
+.app-contents {
+    color: blue;
+}
+
+.app-header > *, .app-contents > * {
+    margin: 16px;
+}

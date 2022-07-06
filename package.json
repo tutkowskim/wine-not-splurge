@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "build": "echo \"This project is a vanilla HTML/JS/CSS app.\""
   },
   "dependencies": {
     "express": "4.16.1"

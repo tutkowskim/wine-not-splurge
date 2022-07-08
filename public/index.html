@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Wine not Splurge?</title>
+    <link rel="icon" href="./wine.svg" />
     <link rel='stylesheet' href='./style.css' />
     <script src='./lib/d3.min.js'></script>
-    <script src='./helpers.js'></script>
+    <script src='./narrative.js'></script>
 </head>
-<body onload='init()'>
+<body onload='init()' onresize="handleResize()">
     <div class='app'>
         <div class='app-header'>
-            <h2>Narrative Visualization</h2>
+            <h2>Wine not Splurge?</h2>
         </div>
-        <div class='app-contents'>
-           <div id='test-div'>test</div>
+        <div class='app-contents flex-grow'>
+            <div class="app-narrative flex-grow"></div>
+            <div class="app-nav-buttons">
+                <button id="button-previous" class="button-trigger button-previous" role="button" onclick="applyStep(currentStep-1)" disabled>Previous</button>
+                <button id="button-next" class="button-trigger button-next" role="button" onclick="applyStep(currentStep+1)">Next</button>
+            </div>
+        </div>
+        <div class='app-footer'>
+            <div class='flex-grow'>&copy; Mark Tutkowski 2022</div>
+            <div><a href="https://github.com/tutkowskim/cs416-narrative-visualization">Project Source</a></div>
+            <div><a href="https://www.kaggle.com/datasets/christopheiv/winemagdata130k">Original Dataset</a></div>
         </div>
     </div>
 </body>

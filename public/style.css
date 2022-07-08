@@ -1,4 +1,5 @@
 body {
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: #e8e8e8;
     margin: 0;
 }
@@ -6,6 +7,7 @@ body {
 .app {
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
 .app-header {
@@ -18,9 +20,80 @@ body {
 }
 
 .app-contents {
-    color: blue;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
 }
 
-.app-header > *, .app-contents > * {
+.app-footer {
+    display: flex;
+    gap: 1rem;
     margin: 16px;
+}
+
+.app-header * {
+    margin: 16px;
+}
+
+.app-narrative {
+    margin: auto;
+    text-align: center;
+    width: 100%;
+    max-width: 1000px;
+}
+
+.app-nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.flex-grow {
+    flex: 1 1 auto;
+}
+
+.button-trigger {
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  width: 90px;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: baseline;
+}
+
+.button-previous {
+  background-color: #EA4C89;
+}
+
+.button-previous:hover, .button-previous:focus {
+  background-color: #F082AC;
+}
+
+.button-next {
+    background-color: #00e832;
+  }
+  
+.button-next:hover, .button-next:focus {
+    background-color: #57ff7b;
+  }
+
+.button-previous:disabled {
+    background-color: #EA4C89;
+    opacity: 0.6;
+}
+
+.button-next:disabled {
+    background-color: #00e832;
+    opacity: 0.6;
 }

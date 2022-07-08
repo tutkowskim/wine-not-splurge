@@ -11,7 +11,7 @@ const drawInitialQuestion = async () => {
     wrapper.append('img').attr('src', '/wine.svg').attr('height', 150);
 }
 
-const drawScatterPlot = async (data, groupByKeyName) => {
+const drawScatterPlot = async (title, data, groupByKeyName) => {
     const groupedScores = {};
     data.forEach(item => {
         points = Number(item.points);
@@ -36,65 +36,86 @@ const drawScatterPlot = async (data, groupByKeyName) => {
     const minX = 1;
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     
-    const minY = 75;
+    const minY = 70;
     const maxY = 100;
     
-    const xs = d3.scaleLog().domain([minX,maxX]).range([0,svgWidth]);
-    const ys = d3.scaleLinear().domain([minY,maxY]).range([0, svgHeight]);
+    const xs = d3.scaleLog().domain([minX,maxX]).range([0,svgWidth-100]);
+    const ys = d3.scaleLinear().domain([minY,maxY]).range([0, svgHeight-100]);
 
     svgElement
-        .append("g")
-        .attr("transform", "translate(50,50)")
+        .append('g')
+        .attr('transform', 'translate(50,50)')
         .selectAll()
         .data(Object.values(groupedScores))
         .enter()
-        .append("circle")
-        .attr("fill", '#0020b0')
-        .attr("r", 2)
-        .attr("cx", (d,i) => xs(d.averagePrice))
-        .attr("cy", (d,i) => svgHeight - ys(d.averagePoints));
+        .append('circle')
+        .attr('fill', '#0020b0')
+        .attr('r', 2)
+        .attr('cx', (d,i) => xs(d.averagePrice))
+        .attr('cy', (d,i) => svgHeight - ys(d.averagePoints));
 
-        d3.select('svg')
-        .append("g")
-        .attr("transform", "translate(50,50)")
-        .call(d3.axisLeft(d3.scaleLinear().domain([minY,maxY]).range([svgHeight-50, 0])));
+   svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .call(d3.axisLeft(d3.scaleLinear().domain([minY,maxY]).range([svgHeight-100, 0])));
       
-      d3.select('svg')
-        .append("g")
-        .attr("transform", `translate(50,${svgHeight-50})`)
-        .call(d3.axisBottom(d3.scaleLog().domain([minX, maxX]).range([0,svgWidth+50])));
-      
-        console.log(maxY);
+    svgElement
+        .append('g')
+        .attr('transform', `translate(50,${svgHeight-50})`)
+        .call(d3.axisBottom(d3.scaleLog().domain([minX, maxX]).range([0,svgWidth-100])));
+
+    svgElement.append('text')
+        .attr('x', '50%')
+        .attr('y',  14)
+        .attr('dominant-baseline', 'middle')
+        .attr('text-anchor', 'middle')
+        .attr('style', 'font-size: 1.17em')
+        .text(title);
+    
+    svgElement.append('text')
+        .attr('x', '50%')
+        .attr('y', svgHeight - 10)
+        .attr('dominant-baseline', 'middle')
+        .attr('text-anchor', 'middle')
+        .text('Average Price (dollars)');
+        
+    
+    svgElement.append('g')
+        .attr('transform', `translate(12, ${svgHeight / 2})`)
+        .append('text')
+        .attr('text-anchor', 'middle')
+        .attr('transform', 'rotate(-90)')
+        .text('Average Score (0-100)');
 }
 
 const drawVarietyScatterPlot = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-    await drawScatterPlot(filteredData, 'variety');
+    await drawScatterPlot('Wine Scores grouped by Variety', filteredData, 'variety');
 }
 
 const drawCountryScatterPlot = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-    await drawScatterPlot(filteredData, 'country');
+    await drawScatterPlot('Wine Scores grouped by Countries', filteredData, 'country');
 }
 
 const drawProvidencesScatterPlot = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-    await drawScatterPlot(filteredData, 'province');
+    await drawScatterPlot('Wine Scores grouped by Providences', filteredData, 'province');
 }
 
 const drawRegionsScatterPlot = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-    await drawScatterPlot(filteredData, 'region_1');
+    await drawScatterPlot('Wine Scores grouped by Regions', filteredData, 'region_1');
 }
 
 const drawWineriesScatterPlot = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-    await drawScatterPlot(filteredData, 'winery');
+    await drawScatterPlot('Wine Scores grouped by Wineries', filteredData, 'winery');
 }
 
 const narrativeSteps = [
@@ -113,8 +134,8 @@ const applyStep = async (stepNumber) => {
         fetchNarrativeContainer().selectAll('*').remove();
         await narrativeSteps[stepNumber]();
         currentStep = stepNumber;
-        d3.select('.button-previous').attr("disabled", currentStep <= 0 ? true : undefined);
-        d3.select('.button-next').attr("disabled", currentStep >= narrativeSteps.length - 1 ? true : undefined);
+        d3.select('.button-previous').attr('disabled', currentStep <= 0 ? true : undefined);
+        d3.select('.button-next').attr('disabled', currentStep >= narrativeSteps.length - 1 ? true : undefined);
     }
 }
 

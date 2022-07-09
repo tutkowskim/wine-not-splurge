@@ -3,6 +3,7 @@ const dataPromise = d3.json('/winemag-data-130k-v2.json');
 const average = (set) => Array.from(set).reduce((a, b) => (a + b), 0) / set.length;
 
 const fetchNarrativeContainer = () => d3.select('.app-narrative');
+const fetchTooltipContainer = () => d3.select('.app-narrative-tooltip');
 
 const drawInitialQuestion = async () => {
     const container = fetchNarrativeContainer().append('div').attr('style', 'display: flex; align-items: center; justify-content: center; height: 100%;')
@@ -50,9 +51,28 @@ const drawScatterPlot = async (title, data, groupByKeyName) => {
         .enter()
         .append('circle')
         .attr('fill', '#0020b0')
-        .attr('r', 2)
+        .attr('r', 3)
         .attr('cx', (d,i) => xs(d.averagePrice))
-        .attr('cy', (d,i) => svgHeight - ys(d.averagePoints));
+        .attr('cy', (d,i) => svgHeight - ys(d.averagePoints))
+        .on('mouseover', (event) => {
+            const element = d3.select(event.srcElement);
+            element.style('outline', '3px solid black');
+            data = element.datum();
+        
+            const tooltip = fetchTooltipContainer();
+            tooltip.html(Object.entries(data).map(([key, value]) => `${key}: ${value}`).join('<br>'));
+            tooltip.style('top', `${event.clientY + 10}px`);
+            tooltip.style('left', `${event.clientX + 10}px`);
+            tooltip.style('display', 'inline');
+        })
+        .on('mouseleave', (event) => {
+            const tooltip = fetchTooltipContainer();
+            tooltip.style('display', 'none');
+            tooltip.selectAll('*').remove();
+        
+            const element = d3.select(event.srcElement);
+            element.style('outline', undefined);
+        });
 
    svgElement
         .append('g')

@@ -8,6 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    position: relative;
 }
 
 .app-header {
@@ -41,6 +42,15 @@ body {
     text-align: center;
     width: 100%;
     max-width: 1000px;
+    position: relative;
+}
+
+.app-narrative-tooltip {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: black 2px solid;
+    padding: 5px;
 }
 
 .app-nav-buttons {

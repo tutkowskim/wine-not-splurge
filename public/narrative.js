@@ -37,7 +37,7 @@ const drawScatterPlot = async (title, data, groupByKeyName) => {
     const minX = 1;
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     
-    const minY = 70;
+    const minY = 78;
     const maxY = 100;
     
     const xs = d3.scaleLog().domain([minX,maxX]).range([0,svgWidth-100]);
@@ -53,7 +53,7 @@ const drawScatterPlot = async (title, data, groupByKeyName) => {
         .attr('fill', '#0020b0')
         .attr('r', 3)
         .attr('cx', (d,i) => xs(d.averagePrice))
-        .attr('cy', (d,i) => svgHeight - ys(d.averagePoints))
+        .attr('cy', (d,i) => svgHeight - 100 - ys(d.averagePoints))
         .on('mouseover', (event) => {
             const element = d3.select(event.srcElement);
             element.style('outline', '3px solid black');

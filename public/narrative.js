@@ -16,10 +16,10 @@ const getScatterPlotYS = (svgElement, minY,maxY) => {
     return d3.scaleLinear().domain([minY,maxY]).range([0, svgHeight-100]);
 }
 
-const drawScatterPlot = async (svgElement, title, scatterPlotData, minX, minY, maxX, maxY) => {
+const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, maxY) => {
     const svgWidth = svgElement.node().getBoundingClientRect().width;
     const svgHeight = svgElement.node().getBoundingClientRect().height;
-    const xs = getScatterPlotXS(svgElement, minX, minY);
+    const xs = getScatterPlotXS(svgElement, minX, maxX);
     const ys = getScatterPlotYS(svgElement, minY, maxY);
 
     svgElement
@@ -112,7 +112,7 @@ const drawVarietyScene = async () => {
                 points: [points],
                 prices: [price],
                 tooltipData: {
-                    "Variety": item['variety'],
+                    'Variety': item['variety'],
                 }
             };
         }
@@ -120,8 +120,8 @@ const drawVarietyScene = async () => {
     const scatterPlotData = Object.values(groupedScores);
     scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
     scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData["Average Points"] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData["Average Price"] = `$${value.averagePrice}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
@@ -130,7 +130,7 @@ const drawVarietyScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    await drawScatterPlot(svgElement, 'Wine Scores grouped by Variety', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Variety', scatterPlotData, minX, minY, maxX, maxY);
 }
 
 const drawCountryScene = async () => {
@@ -151,7 +151,7 @@ const drawCountryScene = async () => {
                 points: [points],
                 prices: [price],
                 tooltipData: {
-                    "Country": item['country'],
+                    'Country': item['country'],
                 }
             };
         }
@@ -159,8 +159,8 @@ const drawCountryScene = async () => {
     const scatterPlotData = Object.values(groupedScores);
     scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
     scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData["Average Points"] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData["Average Price"] = `$${value.averagePrice}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
@@ -169,7 +169,7 @@ const drawCountryScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    await drawScatterPlot(svgElement, 'Wine Scores grouped by Countries', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Countries', scatterPlotData, minX, minY, maxX, maxY);
 }
 
 const drawProvidencesScene = async () => {
@@ -190,8 +190,8 @@ const drawProvidencesScene = async () => {
                 points: [points],
                 prices: [price],
                 tooltipData: {
-                    "Country": item['country'],
-                    "Province": item['province'],
+                    'Country': item['country'],
+                    'Province': item['province'],
                 }
             };
         }
@@ -199,8 +199,8 @@ const drawProvidencesScene = async () => {
     const scatterPlotData = Object.values(groupedScores);
     scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
     scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData["Average Points"] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData["Average Price"] = `$${value.averagePrice}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
@@ -209,7 +209,7 @@ const drawProvidencesScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    await drawScatterPlot(svgElement, 'Wine Scores grouped by Province', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Province', scatterPlotData, minX, minY, maxX, maxY);
 }
 
 const drawRegionsScene = async () => {
@@ -230,9 +230,9 @@ const drawRegionsScene = async () => {
                 points: [points],
                 prices: [price],
                 tooltipData: {
-                    "Country": item['country'],
-                    "Province": item['province'],
-                    "Region": item['region_1'],
+                    'Country': item['country'],
+                    'Province': item['province'],
+                    'Region': item['region_1'],
                 }
             };
         }
@@ -240,8 +240,8 @@ const drawRegionsScene = async () => {
     const scatterPlotData = Object.values(groupedScores);
     scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
     scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData["Average Points"] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData["Average Price"] = `$${value.averagePrice}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
@@ -250,7 +250,7 @@ const drawRegionsScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    await drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
 }
 
 const drawWineriesScene = async () => {
@@ -271,10 +271,10 @@ const drawWineriesScene = async () => {
                 points: [points],
                 prices: [price],
                 tooltipData: {
-                    "Country": item['country'],
-                    "Province": item['province'],
-                    "Region": item['region_1'],
-                    "Winery": item['winery'],
+                    'Country': item['country'],
+                    'Province': item['province'],
+                    'Region': item['region_1'],
+                    'Winery': item['winery'],
                 }
             };
         }
@@ -282,8 +282,8 @@ const drawWineriesScene = async () => {
     const scatterPlotData = Object.values(groupedScores);
     scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
     scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData["Average Points"] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData["Average Price"] = `$${value.averagePrice}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
@@ -292,7 +292,25 @@ const drawWineriesScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    await drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries', scatterPlotData, minX, minY, maxX, maxY);
+
+    const xs = getScatterPlotXS(svgElement, minX, maxX);
+    const ys = getScatterPlotYS(svgElement, minY, maxY);
+    svgElement
+        .append('g')
+        .attr('class', 'annotation-group')
+        .call(d3.annotation()
+            .notePadding(15)
+            .type(d3.annotationCalloutCircle)
+            .annotations([{
+                note: { label: "Sweet Spot" },
+                x: xs(100-35),
+                y: ys(90),
+                ny: 150,
+                nx: 150,
+                subject: { radius: 90 },
+            }])
+        );
 }
 
 const narrativeSteps = [

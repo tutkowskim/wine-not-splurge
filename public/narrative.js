@@ -8,7 +8,7 @@ const fetchTooltipContainer = () => d3.select('.app-narrative-tooltip');
 
 const getScatterPlotXS = (svgElement, minX, maxX) => {
     const svgWidth = svgElement.node().getBoundingClientRect().width;
-    return d3.scaleLog().domain([minX,maxX]).range([0,svgWidth-100]);
+    return d3.scaleLinear().domain([minX,maxX]).range([0,svgWidth-100]);
 }
 
 const getScatterPlotYS = (svgElement, minY,maxY) => {
@@ -61,7 +61,7 @@ const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, m
     svgElement
         .append('g')
         .attr('transform', `translate(50,${svgHeight-50})`)
-        .call(d3.axisBottom(d3.scaleLog().domain([minX, maxX]).range([0,svgWidth-100])));
+        .call(d3.axisBottom(d3.scaleLinear().domain([minX, maxX]).range([0,svgWidth-100])));
 
     svgElement.append('text')
         .attr('x', '50%')
@@ -92,45 +92,6 @@ const drawInitialScene = async () => {
     const wrapper = container.append('div');
     wrapper.append('h3').html('Is it really worth splurging on that bottle of wine?')
     wrapper.append('img').attr('src', '/wine.svg').attr('height', 150);
-}
-
-const drawVarietyScene = async () => {
-    const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['variety']]) {
-            groupedScores[item['variety']].points.push(points);
-            groupedScores[item['variety']].prices.push(price);
-        } else {
-            groupedScores[item['variety']] = { 
-                key: item['variety'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Variety': item['variety'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
-
-    const svgElement = fetchNarrativeContainer().append('svg');
-    svgElement.attr('width', '100%').attr('height', '100%');
-
-    const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
-    const minY = 78;
-    const maxY = 100;
-    drawScatterPlot(svgElement, 'Wine Scores grouped by Variety', scatterPlotData, minX, minY, maxX, maxY);
 }
 
 const drawCountryScene = async () => {
@@ -253,9 +214,50 @@ const drawRegionsScene = async () => {
     drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
 }
 
-const drawWineriesScene = async () => {
+const drawRegionsUnder200Scene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
+    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points));
+
+    const groupedScores = {};
+    filteredData.forEach(item => {
+        points = Number(item.points);
+        price = Number(item.price);
+
+        if (groupedScores[item['region_1']]) {
+            groupedScores[item['region_1']].points.push(points);
+            groupedScores[item['region_1']].prices.push(price);
+        } else {
+            groupedScores[item['region_1']] = { 
+                key: item['region_1'],
+                points: [points],
+                prices: [price],
+                tooltipData: {
+                    'Country': item['country'],
+                    'Province': item['province'],
+                    'Region': item['region_1'],
+                }
+            };
+        }
+    });
+    const scatterPlotData = Object.values(groupedScores);
+    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
+    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+
+    const svgElement = fetchNarrativeContainer().append('svg');
+    svgElement.attr('width', '100%').attr('height', '100%');
+
+    const minX = 1;
+    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const minY = 78;
+    const maxY = 100;
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Regions < $200', scatterPlotData, minX, minY, maxX, maxY);
+}
+
+const drawWineriesUnder200Scene = async () => {
+    const data = await dataPromise;
+    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points));
 
     const groupedScores = {};
     filteredData.forEach(item => {
@@ -292,7 +294,7 @@ const drawWineriesScene = async () => {
     const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
     const minY = 78;
     const maxY = 100;
-    drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries < $200', scatterPlotData, minX, minY, maxX, maxY);
 
     const xs = getScatterPlotXS(svgElement, minX, maxX);
     const ys = getScatterPlotYS(svgElement, minY, maxY);
@@ -315,11 +317,11 @@ const drawWineriesScene = async () => {
 
 const narrativeSteps = [
     drawInitialScene,
-    drawVarietyScene,
     drawCountryScene,
     drawProvidencesScene,
     drawRegionsScene,
-    drawWineriesScene,
+    drawRegionsUnder200Scene,
+    drawWineriesUnder200Scene,
 ];
 
 let currentStep = 0;

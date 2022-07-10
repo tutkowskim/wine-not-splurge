@@ -1,4 +1,10 @@
+html {
+    height: -webkit-fill-available;
+}
+
 body {
+    height: 100vh;
+    height: -webkit-fill-available;
     font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: white;
     margin: 0;
@@ -7,7 +13,6 @@ body {
 .app {
     display: flex;
     flex-direction: column;
-    height: 100vh;
     position: relative;
 }
 
@@ -21,6 +26,7 @@ body {
 }
 
 .app-contents {
+    margin: 16px;
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -2,6 +2,7 @@ const dataPromise = d3.json('/winemag-data-130k-v2.json');
 
 const average = (set) => Array.from(set).reduce((a, b) => (a + b), 0) / set.length;
 
+const fetchAppContainer = () => d3.select('.app');
 const fetchNarrativeContainer = () => d3.select('.app-narrative');
 const fetchTooltipContainer = () => d3.select('.app-narrative-tooltip');
 
@@ -150,6 +151,8 @@ const narrativeSteps = [
 let currentStep = 0;
 
 const applyStep = async (stepNumber) => {
+    const appHeight = d3.select('body').node().getBoundingClientRect().height;
+    fetchAppContainer().style('height', `${appHeight}px`);
     if (stepNumber >= 0 && stepNumber < narrativeSteps.length && narrativeSteps[stepNumber] instanceof Function) {
         fetchNarrativeContainer().selectAll('*').remove();
         await narrativeSteps[stepNumber]();

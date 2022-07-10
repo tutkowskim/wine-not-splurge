@@ -87,14 +87,14 @@ const drawScatterPlot = async (svgElement, title, scatterPlotData, minX, minY, m
         .text('Average Score (0-100)');
 }
 
-const drawInitialQuestion = async () => {
+const drawInitialScene = async () => {
     const container = fetchNarrativeContainer().append('div').attr('style', 'display: flex; align-items: center; justify-content: center; height: 100%;')
     const wrapper = container.append('div');
     wrapper.append('h3').html('Is it really worth splurging on that bottle of wine?')
     wrapper.append('img').attr('src', '/wine.svg').attr('height', 150);
 }
 
-const drawVarietyScatterPlot = async () => {
+const drawVarietyScene = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
 
@@ -133,7 +133,7 @@ const drawVarietyScatterPlot = async () => {
     await drawScatterPlot(svgElement, 'Wine Scores grouped by Variety', scatterPlotData, minX, minY, maxX, maxY);
 }
 
-const drawCountryScatterPlot = async () => {
+const drawCountryScene = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
 
@@ -172,7 +172,7 @@ const drawCountryScatterPlot = async () => {
     await drawScatterPlot(svgElement, 'Wine Scores grouped by Countries', scatterPlotData, minX, minY, maxX, maxY);
 }
 
-const drawProvidencesScatterPlot = async () => {
+const drawProvidencesScene = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
 
@@ -212,7 +212,7 @@ const drawProvidencesScatterPlot = async () => {
     await drawScatterPlot(svgElement, 'Wine Scores grouped by Province', scatterPlotData, minX, minY, maxX, maxY);
 }
 
-const drawRegionsScatterPlot = async () => {
+const drawRegionsScene = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
 
@@ -253,7 +253,7 @@ const drawRegionsScatterPlot = async () => {
     await drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
 }
 
-const drawWineriesScatterPlot = async () => {
+const drawWineriesScene = async () => {
     const data = await dataPromise;
     filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
 
@@ -296,12 +296,12 @@ const drawWineriesScatterPlot = async () => {
 }
 
 const narrativeSteps = [
-    drawInitialQuestion,
-    drawVarietyScatterPlot,
-    drawCountryScatterPlot,
-    drawProvidencesScatterPlot,
-    drawRegionsScatterPlot,
-    drawWineriesScatterPlot,
+    drawInitialScene,
+    drawVarietyScene,
+    drawCountryScene,
+    drawProvidencesScene,
+    drawRegionsScene,
+    drawWineriesScene,
 ];
 
 let currentStep = 0;

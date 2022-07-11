@@ -16,6 +16,32 @@ const getScatterPlotYS = (svgElement, minY,maxY) => {
     return d3.scaleLinear().domain([minY,maxY]).range([0, svgHeight-100]);
 }
 
+const transformScatterPlotData = (data, groupBy, buildExtraToolTipDataFn) => {
+    const groupedScores = {};
+    data.forEach(item => {
+        points = Number(item.points);
+        price = Number(item.price);
+
+        if (groupedScores[item[groupBy]]) {
+            groupedScores[item[groupBy]].points.push(points);
+            groupedScores[item[groupBy]].prices.push(price);
+        } else {
+            groupedScores[item[groupBy]] = { 
+                key: item[groupBy],
+                points: [points],
+                prices: [price],
+                tooltipData: buildExtraToolTipDataFn(item),
+            };
+        }
+    });
+    const scatterPlotData = Object.values(groupedScores);
+    scatterPlotData.forEach((value) => value.averagePoints = Number(average(value.points)).toFixed(2));
+    scatterPlotData.forEach((value) => value.averagePrice = Number(average(value.prices)).toFixed(2));
+    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
+    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+    return scatterPlotData;
+}
+
 const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, maxY) => {
     const svgWidth = svgElement.node().getBoundingClientRect().width;
     const svgHeight = svgElement.node().getBoundingClientRect().height;
@@ -96,38 +122,17 @@ const drawInitialScene = async () => {
 
 const drawCountryScene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['country']]) {
-            groupedScores[item['country']].points.push(points);
-            groupedScores[item['country']].prices.push(price);
-        } else {
-            groupedScores[item['country']] = { 
-                key: item['country'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Country': item['country'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
-
+    const scatterPlotData = transformScatterPlotData(
+        data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
+        'country',
+        (item) => ({ 'Country':  item.country }),
+    );
+    
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
 
     const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Countries', scatterPlotData, minX, minY, maxX, maxY);
@@ -135,39 +140,17 @@ const drawCountryScene = async () => {
 
 const drawProvidencesScene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['province']]) {
-            groupedScores[item['province']].points.push(points);
-            groupedScores[item['province']].prices.push(price);
-        } else {
-            groupedScores[item['province']] = { 
-                key: item['province'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Country': item['country'],
-                    'Province': item['province'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+    const scatterPlotData = transformScatterPlotData(
+        data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
+        'province',
+        (item) => ({ 'Country':  item.country, 'Province': item['province'] }),
+    );
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
 
     const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Province', scatterPlotData, minX, minY, maxX, maxY);
@@ -175,40 +158,17 @@ const drawProvidencesScene = async () => {
 
 const drawRegionsScene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['region_1']]) {
-            groupedScores[item['region_1']].points.push(points);
-            groupedScores[item['region_1']].prices.push(price);
-        } else {
-            groupedScores[item['region_1']] = { 
-                key: item['region_1'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Country': item['country'],
-                    'Province': item['province'],
-                    'Region': item['region_1'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+    const scatterPlotData = transformScatterPlotData(
+        data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
+        'region_1',
+        (item) => ({ 'Country':  item.country, 'Province': item['province'], 'Region': item['region_1'] }),
+    );
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
 
     const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
@@ -216,40 +176,17 @@ const drawRegionsScene = async () => {
 
 const drawRegionsUnder200Scene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['region_1']]) {
-            groupedScores[item['region_1']].points.push(points);
-            groupedScores[item['region_1']].prices.push(price);
-        } else {
-            groupedScores[item['region_1']] = { 
-                key: item['region_1'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Country': item['country'],
-                    'Province': item['province'],
-                    'Region': item['region_1'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+    const scatterPlotData = transformScatterPlotData(
+        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points)),
+        'region_1',
+        (item) => ({ 'Country':  item.country, 'Province': item['province'], 'Region': item['region_1'] }),
+    );
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
 
     const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Regions < $200', scatterPlotData, minX, minY, maxX, maxY);
@@ -257,41 +194,17 @@ const drawRegionsUnder200Scene = async () => {
 
 const drawWineriesUnder200Scene = async () => {
     const data = await dataPromise;
-    filteredData = data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points));
-
-    const groupedScores = {};
-    filteredData.forEach(item => {
-        points = Number(item.points);
-        price = Number(item.price);
-
-        if (groupedScores[item['winery']]) {
-            groupedScores[item['winery']].points.push(points);
-            groupedScores[item['winery']].prices.push(price);
-        } else {
-            groupedScores[item['winery']] = { 
-                key: item['winery'],
-                points: [points],
-                prices: [price],
-                tooltipData: {
-                    'Country': item['country'],
-                    'Province': item['province'],
-                    'Region': item['region_1'],
-                    'Winery': item['winery'],
-                }
-            };
-        }
-    });
-    const scatterPlotData = Object.values(groupedScores);
-    scatterPlotData.forEach((value) => value.averagePoints = average(value.points));
-    scatterPlotData.forEach((value) => value.averagePrice = average(value.prices));
-    scatterPlotData.forEach((value) => value.tooltipData['Average Points'] = `${value.averagePoints}`);
-    scatterPlotData.forEach((value) => value.tooltipData['Average Price'] = `$${value.averagePrice}`);
+    const scatterPlotData = transformScatterPlotData(
+        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points)),
+        'winery',
+        (item) => ({ 'Country':  item.country, 'Province': item['province'], 'Region': item['region_1'], 'Winery': item['winery'] }),
+    );
 
     const svgElement = fetchNarrativeContainer().append('svg');
     svgElement.attr('width', '100%').attr('height', '100%');
 
     const minX = 1;
-    const maxX = Math.max(...Object.values(groupedScores).map(item => item.averagePrice))+1;
+    const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries < $200', scatterPlotData, minX, minY, maxX, maxY);

@@ -18,7 +18,6 @@ const loadData = async () => {
     const data = await dataPromise;
     loadingMessage.remove();
     return data;
-
 }
 
 const showTooltip = (event, buildTooltipContents) => {
@@ -152,13 +151,38 @@ const drawTrendLine = (svgElement, minX, minY, maxX, maxY, step, trendFunctionFn
         .attr('transform', 'translate(50,50)')
         .append('path')
         .attr('d', pathData.trim())
-        .attr('stroke', 'red')
+        .attr('stroke', 'orange')
         .attr('stroke-width', 3)
         .attr('fill', 'none')
         .on('mouseover', (event) => showTooltip(event, () => {
            return `<b>Trend: </b>${trendFunctionLabel}<br><b>R<sup>2</sup>: </b>${trendR2}`;
         }))
         .on('mouseleave', hideTooltip);
+}
+
+const drawAnnotation = (svgElement, minX, minY, maxX, maxY, plotX, plotY, message, dx = 20, dy = 20, note = undefined) => {
+    const svgHeight = svgElement.node().getBoundingClientRect().height;
+    const xs = getScatterPlotXS(svgElement, minX, maxX);
+    const ys = getScatterPlotYS(svgElement, minY, maxY);
+
+    const calloutWithArrow = d3.annotationCustomType(d3.annotationCalloutElbow, {
+        connector: { end: "arrow" },
+    });
+
+    svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .call(d3.annotation()
+            .notePadding(15)
+            .type(calloutWithArrow)
+            .annotations([{
+                note: { label: message },
+                x: xs(plotX),
+                y: svgHeight - 100 - ys(plotY),
+                dx,
+                dy,
+            }])
+        );
 }
 
 const drawInitialScene = async () => {
@@ -189,6 +213,9 @@ const drawCountryScene = async () => {
     const trendFunctionLabel = 'Avg Points = 1.91483 * ln(Avg Price) + 81.6517';
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 50, trendFunctionFn(50),
+        'Glancing at the average score for countries it appears their is a correlation between score and price.'
+    );
 }
 
 const drawProvidencesScene = async () => {
@@ -212,6 +239,9 @@ const drawProvidencesScene = async () => {
     const trendFunctionLabel = 'Avg Points = 2.00079 * ln(Avg Price) + 81.1895';
     const trendR2 = '0.252179';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 100, trendFunctionFn(100),
+        'Breaking countries up into providences the correlation becomes more distinct.'
+    );
 }
 
 const drawRegionsScene = async () => {
@@ -235,6 +265,9 @@ const drawRegionsScene = async () => {
     const trendFunctionLabel = 'Avg Points = 2.8742 * ln(Avg Price) + 78.3731';
     const trendR2 = '0.593806';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 850, trendFunctionFn(850),
+        'Grouping by regions we can see a logarithmic correlation start to emerge.'
+    );
 }
 
 const drawRegionsUnder600Scene = async () => {
@@ -258,6 +291,9 @@ const drawRegionsUnder600Scene = async () => {
     const trendFunctionLabel = 'Avg Points = 2.94624 * ln(Avg Price) + 78.1471';
     const trendR2 = '0.538389';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 200, trendFunctionFn(200),
+        'Removing the outliers you will notice the correlation still exists, however there is a lot of variation at the lower price range.'
+    );
 }
 
 const drawWineriesUnder600Scene = async () => {
@@ -275,30 +311,52 @@ const drawWineriesUnder600Scene = async () => {
     const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
+    const xs = getScatterPlotXS(svgElement, minX, maxX);
+    const ys = getScatterPlotYS(svgElement, minY, maxY);
+
+    svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .append('rect')
+        .attr('x', xs(0))
+        .attr('y', 0)
+        .attr('height', ys(maxY))
+        .attr('width', xs(80))
+        .attr('fill', '#f05959')
+        .attr('opacity', '60');
+    svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .append('rect')
+        .attr('x', xs(80))
+        .attr('y', 0)
+        .attr('height', ys(maxY))
+        .attr('width', xs(140-80))
+        .attr('fill', '#ffff5c')
+        .attr('opacity', '60');
+    svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .append('rect')
+        .attr('x', xs(140))
+        .attr('y', 0)
+        .attr('height', ys(maxY))
+        .attr('width', xs(maxX-137))
+        .attr('fill', '#33f550')
+        .attr('opacity', 60);
+
+    
     drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries < $600', scatterPlotData, minX, minY, maxX, maxY);
 
     const trendFunctionFn = (x) => 2.80229 * Math.log(x) + 78.6389;
     const trendFunctionLabel = 'Avg Points = 2.80229 * ln(Avg Price) + 78.6389';
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
-
-    const xs = getScatterPlotXS(svgElement, minX, maxX);
-    const ys = getScatterPlotYS(svgElement, minY, maxY);
-    svgElement
-        .append('g')
-        .attr('class', 'annotation-group')
-        .call(d3.annotation()
-            .notePadding(15)
-            .type(d3.annotationCalloutCircle)
-            .annotations([{
-                note: { label: 'Sweet Spot' },
-                x: xs(100-35),
-                y: ys(90),
-                ny: 150,
-                nx: 150,
-                subject: { radius: 90 },
-            }])
-        );
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 80 + (140-80)/2, 79,
+        'More expensive wine is most likely to be of higher quality.',
+        60,
+        -10,
+    );
 }
 
 const narrativeSteps = [

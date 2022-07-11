@@ -92,7 +92,7 @@ body {
   background-color: #EA4C89;
 }
 
-.button-previous:hover, .button-previous:focus {
+.button-previous:hover {
   background-color: #ff4a8f;
 }
 
@@ -100,7 +100,7 @@ body {
     background-color: #00e832;
   }
   
-.button-next:hover, .button-next:focus {
+.button-next:hover {
     background-color: #57ff7b;
   }
 

@@ -6,6 +6,41 @@ const fetchAppContainer = () => d3.select('.app');
 const fetchNarrativeContainer = () => d3.select('.app-narrative');
 const fetchTooltipContainer = () => d3.select('.app-narrative-tooltip');
 
+const loadData = async () => {
+    // Show a message that the data is still loading for slower connections
+    const loadingMessage = fetchNarrativeContainer()
+        .append('div')
+        .attr('style', 'display: flex; align-items: center; justify-content: center; height: 100%;');
+    loadingMessage
+        .append('h3')
+        .html('Loading...');
+
+    const data = await dataPromise;
+    loadingMessage.remove();
+    return data;
+
+}
+
+const showTooltip = (event, buildTooltipContents) => {
+    const element = d3.select(event.srcElement);
+    element.style('outline', '3px solid black');
+
+    const tooltip = fetchTooltipContainer();
+    tooltip.html(buildTooltipContents(event));
+    tooltip.style('top', `${event.clientY + 10}px`);
+    tooltip.style('left', `${event.clientX + 10}px`);
+    tooltip.style('display', 'inline');
+}
+
+const hideTooltip = (event) => {
+    const tooltip = fetchTooltipContainer();
+    tooltip.style('display', 'none');
+    tooltip.selectAll('*').remove();
+
+    const element = d3.select(event.srcElement);
+    element.style('outline', undefined);
+}
+
 const getScatterPlotXS = (svgElement, minX, maxX) => {
     const svgWidth = svgElement.node().getBoundingClientRect().width;
     return d3.scaleLinear().domain([minX,maxX]).range([0,svgWidth-100]);
@@ -56,28 +91,15 @@ const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, m
         .enter()
         .append('circle')
         .attr('fill', '#0020b0')
-        .attr('r', 3)
+        .attr('r', 3.5)
         .attr('cx', (d,i) => xs(d.averagePrice))
         .attr('cy', (d,i) => svgHeight - 100 - ys(d.averagePoints))
-        .on('mouseover', (event) => {
+        .on('mouseover', (event) => showTooltip(event, () => {
             const element = d3.select(event.srcElement);
-            element.style('outline', '3px solid black');
-            data = element.datum();
-        
-            const tooltip = fetchTooltipContainer();
-            tooltip.html(Object.entries(data.tooltipData).map(([key, value]) => `<b>${key}</b>: ${value}`).join('<br>'));
-            tooltip.style('top', `${event.clientY + 10}px`);
-            tooltip.style('left', `${event.clientX + 10}px`);
-            tooltip.style('display', 'inline');
-        })
-        .on('mouseleave', (event) => {
-            const tooltip = fetchTooltipContainer();
-            tooltip.style('display', 'none');
-            tooltip.selectAll('*').remove();
-        
-            const element = d3.select(event.srcElement);
-            element.style('outline', undefined);
-        });
+            const data = element.datum();
+            return Object.entries(data.tooltipData).map(([key, value]) => `<b>${key}</b>: ${value}`).join('<br>');
+        }))
+        .on('mouseleave', hideTooltip);
 
    svgElement
         .append('g')
@@ -113,15 +135,41 @@ const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, m
         .text('Average Score (0-100)');
 }
 
+const drawTrendLine = (svgElement, minX, minY, maxX, maxY, step, trendFunctionFn, trendFunctionLabel, trendR2) => {
+    const svgHeight = svgElement.node().getBoundingClientRect().height;
+    const xs = getScatterPlotXS(svgElement, minX, maxX);
+    const ys = getScatterPlotYS(svgElement, minY, maxY);
+    
+    let pathData = '';
+    let initialMove = true;
+    for (let i = minX; i <= maxX; i += step) {
+        pathData += `${initialMove ? 'M' : 'L'}${xs(i)} ${svgHeight - 100 - ys(trendFunctionFn(i))} `
+        initialMove = false;
+    }
+    
+    svgElement
+        .append('g')
+        .attr('transform', 'translate(50,50)')
+        .append('path')
+        .attr('d', pathData.trim())
+        .attr('stroke', 'red')
+        .attr('stroke-width', 3)
+        .attr('fill', 'none')
+        .on('mouseover', (event) => showTooltip(event, () => {
+           return `<b>Trend: </b>${trendFunctionLabel}<br><b>R<sup>2</sup>: </b>${trendR2}`;
+        }))
+        .on('mouseleave', hideTooltip);
+}
+
 const drawInitialScene = async () => {
     const container = fetchNarrativeContainer().append('div').attr('style', 'display: flex; align-items: center; justify-content: center; height: 100%;')
     const wrapper = container.append('div');
-    wrapper.append('h3').html('Is it really worth splurging on that bottle of wine?')
-    wrapper.append('img').attr('src', '/wine.svg').attr('height', 150);
+    wrapper.append('h3').html('Is it really worth splurging on that bottle of wine?');
+    wrapper.append('img').attr('src', '/wine.png').attr('height', 150);
 }
 
 const drawCountryScene = async () => {
-    const data = await dataPromise;
+    const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
         data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
         'country',
@@ -136,10 +184,15 @@ const drawCountryScene = async () => {
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Countries', scatterPlotData, minX, minY, maxX, maxY);
+
+    const trendFunctionFn = (x) => 1.91483 * Math.log(x) + 81.6517;
+    const trendFunctionLabel = 'Avg Points = 1.91483 * ln(Avg Price) + 81.6517';
+    const trendR2 = '0.0003901';
+    drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
 }
 
 const drawProvidencesScene = async () => {
-    const data = await dataPromise;
+    const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
         data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
         'province',
@@ -154,10 +207,15 @@ const drawProvidencesScene = async () => {
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Province', scatterPlotData, minX, minY, maxX, maxY);
+
+    const trendFunctionFn = (x) => 2.00079 * Math.log(x) + 81.1895;
+    const trendFunctionLabel = 'Avg Points = 2.00079 * ln(Avg Price) + 81.1895';
+    const trendR2 = '0.252179';
+    drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
 }
 
 const drawRegionsScene = async () => {
-    const data = await dataPromise;
+    const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
         data.filter(item => !!item.price && Number(item.price) > 0 && !!item.points && Number(item.points)),
         'region_1',
@@ -172,12 +230,17 @@ const drawRegionsScene = async () => {
     const minY = 78;
     const maxY = 100;
     drawScatterPlot(svgElement, 'Wine Scores grouped by Regions', scatterPlotData, minX, minY, maxX, maxY);
+
+    const trendFunctionFn = (x) => 2.8742 * Math.log(x) + 78.3731;
+    const trendFunctionLabel = 'Avg Points = 2.8742 * ln(Avg Price) + 78.3731';
+    const trendR2 = '0.593806';
+    drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
 }
 
-const drawRegionsUnder200Scene = async () => {
-    const data = await dataPromise;
+const drawRegionsUnder600Scene = async () => {
+    const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
-        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points)),
+        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 600 && !!item.points && Number(item.points)),
         'region_1',
         (item) => ({ 'Country':  item.country, 'Province': item['province'], 'Region': item['region_1'] }),
     );
@@ -189,13 +252,18 @@ const drawRegionsUnder200Scene = async () => {
     const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
-    drawScatterPlot(svgElement, 'Wine Scores grouped by Regions < $200', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Regions < $600', scatterPlotData, minX, minY, maxX, maxY);
+
+    const trendFunctionFn = (x) => 2.94624 * Math.log(x) + 78.1471;
+    const trendFunctionLabel = 'Avg Points = 2.94624 * ln(Avg Price) + 78.1471';
+    const trendR2 = '0.538389';
+    drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
 }
 
-const drawWineriesUnder200Scene = async () => {
-    const data = await dataPromise;
+const drawWineriesUnder600Scene = async () => {
+    const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
-        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 200 && !!item.points && Number(item.points)),
+        data.filter(item => !!item.price && Number(item.price) > 0 && Number(item.price) <= 600 && !!item.points && Number(item.points)),
         'winery',
         (item) => ({ 'Country':  item.country, 'Province': item['province'], 'Region': item['region_1'], 'Winery': item['winery'] }),
     );
@@ -207,7 +275,12 @@ const drawWineriesUnder200Scene = async () => {
     const maxX = Math.max(...scatterPlotData.map(item => item.averagePrice));
     const minY = 78;
     const maxY = 100;
-    drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries < $200', scatterPlotData, minX, minY, maxX, maxY);
+    drawScatterPlot(svgElement, 'Wine Scores grouped by Wineries < $600', scatterPlotData, minX, minY, maxX, maxY);
+
+    const trendFunctionFn = (x) => 2.80229 * Math.log(x) + 78.6389;
+    const trendFunctionLabel = 'Avg Points = 2.80229 * ln(Avg Price) + 78.6389';
+    const trendR2 = '0.0003901';
+    drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
 
     const xs = getScatterPlotXS(svgElement, minX, maxX);
     const ys = getScatterPlotYS(svgElement, minY, maxY);
@@ -218,7 +291,7 @@ const drawWineriesUnder200Scene = async () => {
             .notePadding(15)
             .type(d3.annotationCalloutCircle)
             .annotations([{
-                note: { label: "Sweet Spot" },
+                note: { label: 'Sweet Spot' },
                 x: xs(100-35),
                 y: ys(90),
                 ny: 150,
@@ -233,15 +306,20 @@ const narrativeSteps = [
     drawCountryScene,
     drawProvidencesScene,
     drawRegionsScene,
-    drawRegionsUnder200Scene,
-    drawWineriesUnder200Scene,
+    drawRegionsUnder600Scene,
+    drawWineriesUnder600Scene,
 ];
 
 let currentStep = 0;
+let isInStepTransition = false;
 
 const applyStep = async (stepNumber) => {
+    if (isInStepTransition) return;
+    isInStepTransition = true;
+
     const appHeight = d3.select('body').node().getBoundingClientRect().height;
     fetchAppContainer().style('height', `${appHeight}px`);
+
     if (stepNumber >= 0 && stepNumber < narrativeSteps.length && narrativeSteps[stepNumber] instanceof Function) {
         fetchNarrativeContainer().selectAll('*').remove();
         await narrativeSteps[stepNumber]();
@@ -249,6 +327,8 @@ const applyStep = async (stepNumber) => {
         d3.select('.button-previous').attr('disabled', currentStep <= 0 ? true : undefined);
         d3.select('.button-next').attr('disabled', currentStep >= narrativeSteps.length - 1 ? true : undefined);
     }
+
+    isInStepTransition = false;
 }
 
 const init = async () => {

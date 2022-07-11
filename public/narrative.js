@@ -353,7 +353,7 @@ const drawWineriesUnder600Scene = async () => {
     const trendFunctionLabel = 'Avg Points = 2.80229 * ln(Avg Price) + 78.6389';
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
-    drawAnnotation(svgElement, minX, minY, maxX, maxY, 80 + (140-80)/2, 79,
+    drawAnnotation(svgElement, minX, minY, maxX, maxY, 140, 78,
         'More expensive wine is most likely to be of higher quality.',
         60,
         -10,

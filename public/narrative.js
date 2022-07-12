@@ -123,7 +123,7 @@ const drawScatterPlot = (svgElement, title, scatterPlotData, minX, minY, maxX, m
         .attr('y', svgHeight - 10)
         .attr('dominant-baseline', 'middle')
         .attr('text-anchor', 'middle')
-        .text('Average Price (dollars)');
+        .text('Average Price (USD)');
         
     
     svgElement.append('g')
@@ -215,7 +215,7 @@ const drawCountryScene = async () => {
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
     drawAnnotation(svgElement, minX, minY, maxX, maxY, 50, trendFunctionFn(50),
-        'Glancing at the average score for countries it appears their is a correlation between score and price.'
+        'Glancing at the average score for countries it appears there is a correlation between score and price.'
     );
 }
 
@@ -354,7 +354,7 @@ const drawWineriesUnder600Scene = async () => {
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
     drawAnnotation(svgElement, minX, minY, maxX, maxY, 140, 78,
-        'More expensive wine is most likely to be of higher quality.',
+        'More expensive wine is most likely to be of higher quality due to less variance.',
         60,
         -10,
     );

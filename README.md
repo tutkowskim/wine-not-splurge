@@ -13,4 +13,4 @@ https://www.kaggle.com/datasets/christopheiv/winemagdata130k
 You can run the project locally using nodejs by running the commands `npm install` and `npm start`, which will serve the file `./public` at the url `http://localhost:3000`.
 
 ## Production Deployment
-For production deployment the files in the public directory are uploaded to and hosed by Azure Static Webapps.
+For production deployment the files in the public directory are uploaded to and hosted by Azure Static Webapps.

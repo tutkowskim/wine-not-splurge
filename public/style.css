@@ -8,13 +8,14 @@ body {
     height: -webkit-fill-available;
     font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
     background-color: white;
-    margin: 0;
+    margin: 16px;
 }
 
 .app {
     display: flex;
     flex-direction: column;
     position: relative;
+    gap: 16px;
 }
 
 .app-header {
@@ -27,7 +28,9 @@ body {
 }
 
 .app-contents {
-    margin: 16px;
+    margin: auto;
+    width: 100%;
+    max-width: 1000px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -37,7 +40,6 @@ body {
 .app-footer {
     display: flex;
     gap: 1rem;
-    margin: 16px;
 }
 
 .app-header * {
@@ -48,7 +50,6 @@ body {
     margin: auto;
     text-align: center;
     width: 100%;
-    max-width: 1000px;
     position: relative;
 }
 
@@ -104,4 +105,8 @@ body {
 .button-next:disabled {
     background-color: #00e832;
     opacity: 0.6;
+}
+
+.center-text {
+    text-align: center;
 }

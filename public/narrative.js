@@ -185,14 +185,6 @@ const drawAnnotation = (svgElement, minX, minY, maxX, maxY, plotX, plotY, messag
         );
 }
 
-const drawInitialScene = async () => {
-    const container = fetchNarrativeContainer().append('div').attr('style', 'display: flex; align-items: center; justify-content: center; height: 100%;')
-    const wrapper = container.append('div');
-    wrapper.append('h3').html('Is it really worth splurging on that bottle of wine?');
-    wrapper.append('img').attr('src', '/wine.png').attr('height', 150);
-    wrapper.append('p').html('By looking at 130 thousand wine reviews submitted to wine magazine we can attempt to answer this question through a series of visualizations. Use the buttons below to navigate through the presentation and hover over items in the chart for more information.');
-}
-
 const drawCountryScene = async () => {
     const data = await loadData();
     const scatterPlotData = transformScatterPlotData(
@@ -361,7 +353,6 @@ const drawWineriesUnder600Scene = async () => {
 }
 
 const narrativeSteps = [
-    drawInitialScene,
     drawCountryScene,
     drawProvidencesScene,
     drawRegionsScene,

@@ -346,7 +346,7 @@ const drawWineriesUnder600Scene = async () => {
     const trendR2 = '0.0003901';
     drawTrendLine(svgElement, minX, minY, maxX, maxY, (maxX-minX)/500, trendFunctionFn, trendFunctionLabel, trendR2);
     drawAnnotation(svgElement, minX, minY, maxX, maxY, 140, 78,
-        'More expensive wine is most likely to be of higher quality due to less variance.',
+        'More expensive wines are higher quality, since they have less variance.',
         60,
         -10,
     );

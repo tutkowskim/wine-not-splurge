@@ -50,6 +50,7 @@ body {
     margin: auto;
     text-align: center;
     width: 100%;
+    flex: 1 0 500px;
     position: relative;
 }
 

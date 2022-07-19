@@ -101,11 +101,13 @@ body {
 .button-previous:disabled {
     background-color: #EA4C89;
     opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .button-next:disabled {
     background-color: #00e832;
     opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .center-text {

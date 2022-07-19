@@ -176,7 +176,7 @@ const drawAnnotation = (svgElement, minX, minY, maxX, maxY, plotX, plotY, messag
             .notePadding(15)
             .type(calloutWithArrow)
             .annotations([{
-                note: { label: message },
+                note: { label: message, wrap: 160 },
                 x: xs(plotX),
                 y: svgHeight - 100 - ys(plotY),
                 dx,

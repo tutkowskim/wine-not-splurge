@@ -70,24 +70,14 @@ body {
     flex: 1 1 auto;
 }
 
-/* Button style is a a modified version from https://getcssscan.com/css-buttons-examples */
 .button-trigger {
-  border-radius: 8px;
-  border-style: none;
-  box-sizing: border-box;
-  color: #FFFFFF;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 500;
-  height: 40px;
-  width: 90px;
-  margin: 0;
-  outline: none;
-  padding: 10px 16px;
-  text-align: center;
-  text-decoration: none;
-  vertical-align: baseline;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    width: 75px;
+    cursor: pointer;
 }
 
 .button-previous {
